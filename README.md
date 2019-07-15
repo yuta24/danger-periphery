@@ -4,12 +4,14 @@ A [Danger](https://danger.systems/ruby/) plugin to identify unused code using [P
 
 This plugin is heavily inspired by [danger-swiftlint](https://github.com/ashfurrow/danger-ruby-swiftlint).
 
+*This plugin is under development.*
+
 ## Installation
 
 Add this line to your Gemfile:
 
 ```rb
-gem 'danger-rubocop'
+gem 'danger-periphery'
 ```
 
 [Periphery](https://github.com/peripheryapp/periphery) also needs to be installed before you run Danger.
