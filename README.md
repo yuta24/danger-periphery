@@ -1,15 +1,30 @@
 # danger-periphery
 
-A description of danger-periphery.
+A [Danger](https://danger.systems/ruby/) plugin to identify unused code using [Periphery](https://github.com/peripheryapp/periphery).
+
+This plugin is heavily inspired by [danger-swiftlint](https://github.com/ashfurrow/danger-ruby-swiftlint).
 
 ## Installation
 
-    $ gem install danger-periphery
+Add this line to your Gemfile:
+
+```rb
+gem 'danger-rubocop'
+```
+
+[Periphery](https://github.com/peripheryapp/periphery) also needs to be installed before you run Danger.
 
 ## Usage
 
-    Methods and attributes from this plugin are available in
-    your `Dangerfile` under the `periphery` namespace.
+Add this to your `Dangerfile`:
+
+```ruby
+periphery.scan_files
+```
+
+## ToDos
+
+- [ ] support of periphery's option parameters
 
 ## Development
 
