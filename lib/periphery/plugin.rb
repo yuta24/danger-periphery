@@ -18,16 +18,80 @@ module Danger
   #
   class DangerPeriphery < Plugin
 
-    # An attribute that you can read/write from your Dangerfile
-    #
-    # @return   [Array<String>]
-    attr_accessor :my_attribute
+    # The path to periphery's executable
+    attr_accessor :binary_path
 
-    # A method that you can call from your Dangerfile
-    # @return   [Array<String>]
+    # Scan Swift files.
     #
-    def warn_on_mondays
-      warn 'Trying to merge code on a Monday' if Date.today.wday == 1
+    # @return [void]
+    #
+    def scan_files(inline_mode: false)
+      raise "periphery is not installed" unless periphery.installed?
+
+      # Run periphery
+      warnings = periphery.run.split("\n")
+
+      if inline_mode
+        send_inline_comment(warnings, :warn)
+      elsif !warnings.empty?
+        message = markdown_issues(warnings, 'Warnings')
+        markdown message
+      end
+    end
+
+    # Create a markdown table from swiftlint issues
+    #
+    # @return  [String]
+    def markdown_issues(results, heading)
+      message = "#### #{heading}\n\n".dup
+
+      message << "File | Line | Reason |\n"
+      message << "| --- | ----- | ----- |\n"
+
+      results.each do |r|
+        s = r.split(':')
+
+        filename = s[0]
+        line = s[1]
+        reason = "#{s[3]}:#{s[4]}"
+
+        # Other available properties can be found int SwiftLint/…/JSONReporter.swift
+        message << "#{filename} | #{line} | #{reason})\n"
+      end
+
+      message
+    end
+
+    # Send inline comment with danger's warn or fail method
+    #
+    # @return [void]
+    def send_inline_comment(results, method)
+      dir = "#{Dir.pwd}/"
+
+      results.each do |r|
+        s = r.split(':')
+
+        # extended content here
+        filename = s[0]
+        line = s[1]
+        reason = "#{s[3]}:#{s[4]}"
+
+        github_filename = filename.gsub(dir, '')
+        message = "#{reason}".dup
+
+        message << "\n"
+        message << "`#{reason}`" # helps writing exceptions // swiftlint:disable:this rule_id
+        message << " `#{filename}:#{line}`" # file:line for pasting into Xcode Quick Open
+
+        send(method, message, file: github_filename, line: line)
+      end
+    end
+
+    # Constructs the Periphery class
+    #
+    # @return [Periphery]
+    def periphery
+      Periphery.new(binary_path)
     end
   end
 end
