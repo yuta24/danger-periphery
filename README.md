@@ -22,9 +22,10 @@ Add this to your `Dangerfile`:
 periphery.scan_files
 ```
 
-## ToDos
+## ToDo
 
 - [ ] support of periphery's option parameters
+- [ ] test
 
 ## Development
 
