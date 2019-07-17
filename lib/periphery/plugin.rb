@@ -21,6 +21,12 @@ module Danger
     # The path to periphery's executable
     attr_accessor :binary_path
 
+    attr_accessor :warnings
+
+    attr_accessor :errors
+
+    attr_accessor :issues
+
     # Scan Swift files.
     #
     # @return [void]
@@ -29,7 +35,7 @@ module Danger
       raise "periphery is not installed" unless periphery.installed?
 
       # Run periphery
-      warnings = periphery.run.split("\n")
+      @warnings = periphery.run.split("\n")
 
       if inline_mode
         send_inline_comment(warnings, :warn)
@@ -51,9 +57,9 @@ module Danger
       results.each do |r|
         s = r.split(':')
 
-        filename = s[0]
+        filename = s[0].split('/').last
         line = s[1]
-        reason = "#{s[3]}:#{s[4]}"
+        reason = "#{s[4]}".strip
 
         # Other available properties can be found int SwiftLint/…/JSONReporter.swift
         message << "#{filename} | #{line} | #{reason})\n"
@@ -72,16 +78,16 @@ module Danger
         s = r.split(':')
 
         # extended content here
-        filename = s[0]
+        full_filepath = s[0]
         line = s[1]
-        reason = "#{s[3]}:#{s[4]}"
+        reason = "#{s[4]}".strip
 
-        github_filename = filename.gsub(dir, '')
+        github_filename = full_filepath.gsub(dir, '')
+        filename = full_filepath.split('/').last
+
         message = "#{reason}".dup
-
         message << "\n"
-        message << "`#{reason}`" # helps writing exceptions // swiftlint:disable:this rule_id
-        message << " `#{filename}:#{line}`" # file:line for pasting into Xcode Quick Open
+        message << "`#{filename}:#{line}`" # file:line for pasting into Xcode Quick Open
 
         send(method, message, file: github_filename, line: line)
       end
